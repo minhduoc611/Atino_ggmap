@@ -28,7 +28,7 @@ def create_safe_driver():
         chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
         chrome_options.add_experimental_option('prefs', {
             'intl.accept_languages': 'vi-VN,vi,en-US,en',
-            'profile.default_content_setting_values.geolocation': 1  # Allow geolocation
+            'profile.default_content_setting_values.geolocation': 1
         })
        
         service = Service(ChromeDriverManager().install())
@@ -58,13 +58,13 @@ def create_safe_driver():
         return None
 
 def scrape_store_reviews(driver, store_name, url):
-    """Cào reviews cho 1 cửa hàng"""
+    """Cào reviews cho 1 cửa hàng - GIỮ NGUYÊN VĂN BẢN GỐC"""
     try:
         print(f"\n{'='*60}")
         print(f"Dang xu ly: {store_name}")
         print(f"{'='*60}")
         
-        # Thêm ?hl=vi vào URL để force tiếng Việt
+        # Thêm ?hl=vi vào URL để Google Maps hiển thị tiếng Việt
         if '?' in url:
             url = url + '&hl=vi'
         else:
@@ -178,33 +178,35 @@ def scrape_store_reviews(driver, store_name, url):
         
         print(f"Da load {last_height} reviews cho {store_name}")
         
-        # Lay thong tin reviews
+        # Lay thong tin reviews - GIỮ NGUYÊN VĂN BẢN GỐC
         reviews = driver.find_elements(By.CSS_SELECTOR, "div.jftiEf.fontBodyMedium")
         reviews_data = []
         
         for index, review in enumerate(reviews, 1):
             try:
+                # Tên người review - văn bản gốc
                 reviewer_name = review.find_element(By.CSS_SELECTOR, "div.d4r55.fontTitleMedium").text if review.find_elements(By.CSS_SELECTOR, "div.d4r55.fontTitleMedium") else "N/A"
                 
+                # Xếp hạng - GIỮ NGUYÊN VĂN BẢN GỐC (5 sao / 5 stars)
                 rating_element = review.find_element(By.CSS_SELECTOR, "span.kvMYJc") if review.find_elements(By.CSS_SELECTOR, "span.kvMYJc") else None
                 rating = rating_element.get_attribute("aria-label") if rating_element else "N/A"
                 
-                # Convert rating to Vietnamese
-                rating = convert_to_vietnamese(rating)
-                
+                # Thời gian đăng - GIỮ NGUYÊN VĂN BẢN GỐC (3 tháng trước / 3 months ago)
                 time_posted = review.find_element(By.CSS_SELECTOR, "span.rsqaWe").text if review.find_elements(By.CSS_SELECTOR, "span.rsqaWe") else "N/A"
                 
+                # Nội dung review - LUÔN LÀ VĂN BẢN GỐC
                 review_text = review.find_element(By.CSS_SELECTOR, "span.wiI7pd").text if review.find_elements(By.CSS_SELECTOR, "span.wiI7pd") else ""
                 
+                # Review ID
                 review_id = review.get_attribute("data-review-id") or f"TEMP_{store_name}_{index}"
 
                 reviews_data.append({
                     "Cửa hàng": store_name,
                     "Review ID": review_id,
                     "Tên người review": reviewer_name,
-                    "Xếp hạng": rating,
-                    "Thời gian đăng": time_posted,
-                    "Bài viết": review_text
+                    "Xếp hạng": rating,  # Văn bản gốc: "5 sao" hoặc "5 stars"
+                    "Thời gian đăng": time_posted,  # Văn bản gốc: "3 tháng trước" hoặc "3 months ago"
+                    "Bài viết": review_text  # Luôn là văn bản gốc người dùng viết
                 })
                 
             except Exception as e:
@@ -286,5 +288,3 @@ if __name__ == "__main__":
     finally:
         driver.quit()
         print("\nDa dong trinh duyet")
-
-
