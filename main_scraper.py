@@ -14,7 +14,7 @@ from lark_api import LarkBaseAPI
 def create_safe_driver():
     try:
         chrome_options = Options()
-        chrome_options.add_argument('--headless') 
+        chrome_options.add_argument('--headless')  # Chạy không cần giao diện
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--disable-gpu')
@@ -22,11 +22,25 @@ def create_safe_driver():
         chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
-        chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+        
+        # Force tiếng Việt
+        chrome_options.add_argument('--lang=vi-VN')
+        chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+        chrome_options.add_experimental_option('prefs', {
+            'intl.accept_languages': 'vi-VN,vi,en-US,en'
+        })
        
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
         driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+        
+        # Set geolocation to Vietnam (Hanoi)
+        driver.execute_cdp_cmd("Emulation.setGeolocationOverride", {
+            "latitude": 21.0285,
+            "longitude": 105.8542,
+            "accuracy": 100
+        })
+        
         return driver
     except Exception as e:
         print(f"Loi tao driver: {e}")
