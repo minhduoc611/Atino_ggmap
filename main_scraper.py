@@ -23,11 +23,12 @@ def create_safe_driver():
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
         
-        # Force tiếng Việt
+        # Force tiếng Việt và timezone Việt Nam
         chrome_options.add_argument('--lang=vi-VN')
         chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
         chrome_options.add_experimental_option('prefs', {
-            'intl.accept_languages': 'vi-VN,vi,en-US,en'
+            'intl.accept_languages': 'vi-VN,vi,en-US,en',
+            'profile.default_content_setting_values.geolocation': 1  # Allow geolocation
         })
        
         service = Service(ChromeDriverManager().install())
@@ -41,6 +42,16 @@ def create_safe_driver():
             "accuracy": 100
         })
         
+        # Set timezone to Asia/Ho_Chi_Minh (UTC+7)
+        driver.execute_cdp_cmd("Emulation.setTimezoneOverride", {
+            "timezoneId": "Asia/Ho_Chi_Minh"
+        })
+        
+        # Set locale to Vietnamese
+        driver.execute_cdp_cmd("Emulation.setLocaleOverride", {
+            "locale": "vi-VN"
+        })
+        
         return driver
     except Exception as e:
         print(f"Loi tao driver: {e}")
@@ -52,6 +63,12 @@ def scrape_store_reviews(driver, store_name, url):
         print(f"\n{'='*60}")
         print(f"Dang xu ly: {store_name}")
         print(f"{'='*60}")
+        
+        # Thêm ?hl=vi vào URL để force tiếng Việt
+        if '?' in url:
+            url = url + '&hl=vi'
+        else:
+            url = url + '?hl=vi'
         
         driver.get(url)
         time.sleep(3)
@@ -172,6 +189,9 @@ def scrape_store_reviews(driver, store_name, url):
                 rating_element = review.find_element(By.CSS_SELECTOR, "span.kvMYJc") if review.find_elements(By.CSS_SELECTOR, "span.kvMYJc") else None
                 rating = rating_element.get_attribute("aria-label") if rating_element else "N/A"
                 
+                # Convert rating to Vietnamese
+                rating = convert_to_vietnamese(rating)
+                
                 time_posted = review.find_element(By.CSS_SELECTOR, "span.rsqaWe").text if review.find_elements(By.CSS_SELECTOR, "span.rsqaWe") else "N/A"
                 
                 review_text = review.find_element(By.CSS_SELECTOR, "span.wiI7pd").text if review.find_elements(By.CSS_SELECTOR, "span.wiI7pd") else ""
@@ -266,3 +286,5 @@ if __name__ == "__main__":
     finally:
         driver.quit()
         print("\nDa dong trinh duyet")
+
+
