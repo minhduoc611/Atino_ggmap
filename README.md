@@ -2,29 +2,6 @@
 
 Tự động scrape reviews từ Google Maps và đồng bộ vào Lark Base mỗi ngày.
 
-## 🚀 Setup GitHub Actions
-
-### 1. Fork/Clone repo này
-
-### 2. Thêm GitHub Secrets
-
-Vào **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
-
-Thêm các secrets sau:
-
-| Secret Name | Value | Ví dụ |
-|-------------|-------|-------|
-| `LARK_APP_ID` | App ID của Lark | `cli_a8620f964a38d02f` |
-| `LARK_APP_SECRET` | App Secret của Lark | `G3FdlSvmTAXZYX8S...` |
-| `LARK_BASE_TOKEN` | Base Token | `VLMUbLONpaIWT1s...` |
-| `LARK_TABLE_ID` | Table ID cửa hàng | `tbld7PZ0yY7lUOOg` |
-| `LARK_TABLE_REVIEW_ID` | Table ID reviews | `tblAoE2I2Syh7q18` |
-
-### 3. Kích hoạt Actions
-
-- Vào tab **Actions**
-- Click **"I understand my workflows, go ahead and enable them"**
-
 ### 4. Test chạy thủ công
 
 - Vào **Actions** → **Daily Google Maps Review Scraper**
